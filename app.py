@@ -1,6 +1,7 @@
 import hashlib
 import html
 import json
+import os
 import threading
 import uuid
 from datetime import datetime
@@ -11,7 +12,12 @@ from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 BASE_DIR = Path(__file__).resolve().parent
-DATA_FILE = BASE_DIR / "Guestboard.json"
+# Vercel의 배포 디렉터리는 읽기 전용이라, 서버리스 환경에서는 쓰기 가능한 /tmp를 사용한다.
+# (단, /tmp는 함수 인스턴스마다 초기화될 수 있어 데이터가 영구 보존되지는 않는다.)
+if os.environ.get("VERCEL"):
+    DATA_FILE = Path("/tmp/Guestboard.json")
+else:
+    DATA_FILE = BASE_DIR / "Guestboard.json"
 
 MAX_NAME_LEN = 20
 MAX_MESSAGE_LEN = 500
